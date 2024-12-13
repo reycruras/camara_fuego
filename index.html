@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera Access</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    video {
+      width: 90%;
+      max-width: 500px;
+      border: 2px solid #000;
+      border-radius: 10px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #cccccc;
+    }
+  </style>
+</head>
+<body>
+  <h1>Camera Access</h1>
+  <video id="video" autoplay playsinline></video>
+  <button id="capture" disabled>Capture Frame</button>
+  <canvas id="canvas" style="display: none;"></canvas>
+  <script>
+    const video = document.getElementById('video');
+    const button = document.getElementById('capture');
+    const canvas = document.getElementById('canvas');
+
+    // Request access to the camera
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        button.disabled = false;
+      } catch (error) {
+        alert('Error accessing camera: ' + error.message);
+      }
+    }
+
+    // Capture a frame from the video feed
+    button.addEventListener('click', () => {
+      const context = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Convert the captured image to a data URL
+      const imageData = canvas.toDataURL('image/png');
+      console.log(imageData); // This is where you can send the image to the ESP8266 or display it
+    });
+
+    // Start the camera when the page loads
+    startCamera();
+  </script>
+</body>
+</html>
